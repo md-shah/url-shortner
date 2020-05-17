@@ -1,42 +1,26 @@
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
 const sendResponse = require('../utils').sendResponse;
-const userModel = require('../../models/user').userModel;
+const shortURLModel = require('../../models/urlListModel').shortURLModel;
+const analyticsModel = require('../../models/analyticsModel').analyticsModel;
 
-module.exports = (req, res) => {
-    const userData = req.body;
-    if (!(userData.username && userData.password)) {
-        return sendResponse(res, 401, 'Invalid Data Provided');
-    } else {
-        userModel.findOne({username: userData.username}, async (err, userObject) => {
-            if (err) {
-                console.log(err);
-                return sendResponse(res, 500, 'Internal Server Error');
-            } else if (!userObject) {
-                return sendResponse(res, 401, 'Invalid Username or Password');
-            } else {
-                if (bcrypt.compareSync(userData.password, userObject.password)) {
-                    let token = generateJwt({userData: userObject});
-
-                    sendResponse(res, 200, {
-                        message: 'Login Success',
-                        username: userObject.username,
-                        accesstoken: token,
-                    });
-                } else {
-                    return sendResponse(res, 401, 'Invalid Username or Password');
-                }
-            }
-        }).populate('tenantId');
+module.exports = async (req, res) => {
+    const requestParams = req.params;
+    if (!requestParams.shortURLid) {
+        return sendResponse(res, 422, 'Please provide a short URL');
+    }
+    try {
+        const urlData = await shortURLModel.findOne({
+            shortURL: requestParams.shortURLid
+        });
+        if (!urlData) {
+            return sendResponse(res, 404,  'No corresponding URL Found!');
+        }
+        const analyticsData = new analyticsModel({
+            urlID: urlData._id,
+            details: req.useragent
+        });
+        await analyticsData.save();
+        return sendResponse(res, 302, urlData.url);
+    } catch (error) {
+        return sendResponse(res, error.code || error.statusCode || 500, error.message || 'Internal Server Error');
     }
 };
-
-function generateJwt(userData) {
-    return jwt.sign(
-        {...userData},
-        'someSecret',
-        {
-            expiresIn: '1h'
-        }
-    );
-}

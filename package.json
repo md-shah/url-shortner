@@ -1,21 +1,21 @@
 {
-  "name": "auth-flow",
+  "name": "url-shortner",
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "dev": "nodemon ./bin/www"
   },
   "dependencies": {
-    "bcrypt": "^3.0.7",
     "body-parser": "^1.19.0",
     "cookie-parser": "~1.4.4",
+    "crypto-js": "^4.0.0",
     "debug": "~2.6.9",
     "express": "~4.16.1",
     "express-useragent": "^1.0.13",
     "mongoose": "^5.8.3",
-    "morgan": "~1.9.1"
+    "morgan": "~1.9.1",
+    "tinyurl": "^1.1.5"
   },
-  "devDependencies": {
-    "jsonwebtoken": "^8.5.1"
-  }
+  "devDependencies": {}
 }

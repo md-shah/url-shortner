@@ -1,12 +1,12 @@
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost:27017/auth-flow', {
+mongoose.connect('mongodb://localhost:27017/url-shortener', {
     useCreateIndex: true,
     useUnifiedTopology: true,
     useNewUrlParser: true,
     useFindAndModify: false
 }).then(event => console.log("Database connection established"))
     .catch((err) => {
-        console.log("Database Connection Failed!\n", err);
+        console.log("Database Connection Failed!\n", err.message);
     });
 
-module.export = mongoose.connect;
+module.exports = mongoose.connect;

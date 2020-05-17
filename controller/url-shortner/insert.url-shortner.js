@@ -1,42 +1,22 @@
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
 const sendResponse = require('../utils').sendResponse;
-const userModel = require('../../models/user').userModel;
+const shortURLModel = require('../../models/urlListModel').shortURLModel;
+const generateRandomString = require('../utils').generateRandomString;
 
-module.exports = (req, res) => {
-    const userData = req.body;
-    if (!(userData.username && userData.password)) {
-        return sendResponse(res, 401, 'Invalid Data Provided');
-    } else {
-        userModel.findOne({username: userData.username}, async (err, userObject) => {
-            if (err) {
-                console.log(err);
-                return sendResponse(res, 500, 'Internal Server Error');
-            } else if (!userObject) {
-                return sendResponse(res, 401, 'Invalid Username or Password');
-            } else {
-                if (bcrypt.compareSync(userData.password, userObject.password)) {
-                    let token = generateJwt({userData: userObject});
 
-                    sendResponse(res, 200, {
-                        message: 'Login Success',
-                        username: userObject.username,
-                        accesstoken: token,
-                    });
-                } else {
-                    return sendResponse(res, 401, 'Invalid Username or Password');
-                }
-            }
-        }).populate('tenantId');
+module.exports = async (req, res) => {
+    const requestBody = req.body;
+    try {
+        if (!(requestBody.url)) {
+            return sendResponse(res, 422, 'Invalid Data Provided');
+        }
+        const newURLData = new shortURLModel({
+            url: requestBody.url,
+            shortURL: generateRandomString()
+        });
+        await newURLData.save();
+        return sendResponse(res, 200, 'URL Added');
+    } catch (error) {
+        console.log(error)
+        return sendResponse(res, error.code || error.statusCode || 500, error.message || 'Internal Server Error');
     }
 };
-
-function generateJwt(userData) {
-    return jwt.sign(
-        {...userData},
-        'someSecret',
-        {
-            expiresIn: '1h'
-        }
-    );
-}

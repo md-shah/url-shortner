@@ -2,10 +2,10 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const analyticsSchema = new mongoose.Schema({
-    urlID: [{
+    urlID: {
         type: Schema.Types.ObjectId,
         ref: 'ShortURL'
-    }],
+    },
     requestIP: String,
     details: Object,
 }, {

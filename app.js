@@ -1,22 +1,21 @@
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const useragent = require('express-useragent');
 
 const dbConnection = require('./bin/db-connection');
 dbConnection;
-var authenticatedRoute = require('./routes/authenticatedRoute');
-var usersRouter = require('./routes/users');
+const urlShorterRoute = require('./routes/urlShortner');
 
-var app = express();
-
+const app = express();
+app.use(useragent.express());
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/auth', authenticatedRoute);
-app.use('/users', usersRouter);
+app.use('/', urlShorterRoute);
 
 module.exports = app;
