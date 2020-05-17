@@ -1,0 +1,5 @@
+# Dependencies Folder
+node_modules
+
+# Editor Dependencies
+.idea
